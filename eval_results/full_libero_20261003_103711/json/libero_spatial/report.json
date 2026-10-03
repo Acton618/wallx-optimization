@@ -1,0 +1,100 @@
+{
+  "overall": {
+    "attempted": 10,
+    "successes": 6,
+    "success_rate": 0.6,
+    "failed": 0
+  },
+  "per_task": {
+    "libero_spatial_t0": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        69
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 69.0
+    },
+    "libero_spatial_t1": {
+      "attempted": 1,
+      "successes": 0,
+      "steps": [
+        220
+      ],
+      "success_rate": 0.0,
+      "avg_steps": 220.0
+    },
+    "libero_spatial_t2": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        93
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 93.0
+    },
+    "libero_spatial_t3": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        75
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 75.0
+    },
+    "libero_spatial_t4": {
+      "attempted": 1,
+      "successes": 0,
+      "steps": [
+        220
+      ],
+      "success_rate": 0.0,
+      "avg_steps": 220.0
+    },
+    "libero_spatial_t5": {
+      "attempted": 1,
+      "successes": 0,
+      "steps": [
+        220
+      ],
+      "success_rate": 0.0,
+      "avg_steps": 220.0
+    },
+    "libero_spatial_t6": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        96
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 96.0
+    },
+    "libero_spatial_t7": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        108
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 108.0
+    },
+    "libero_spatial_t8": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        101
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 101.0
+    },
+    "libero_spatial_t9": {
+      "attempted": 1,
+      "successes": 0,
+      "steps": [
+        220
+      ],
+      "success_rate": 0.0,
+      "avg_steps": 220.0
+    }
+  }
+}

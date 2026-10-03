@@ -1,0 +1,34 @@
+# 排除 eval_results 目录
+eval_results_v2/
+eval_results_v1/
+debug_output/
+debug_output_v0/
+
+# 排除 third_party 目录下的所有内容，但保留 third_party 目录本身
+third_party/**
+!third_party/
+
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.egg-info/
+*.egg
+pip-log.txt
+.env
+
+# ===== 日志 & 临时 =====
+*.log
+*.swp
+.DS_Store
+
+# ===== 本地脚本 / 个人文件 =====
+workspace/example/*.yml
+workspace/example/*.yaml
+
+# ===== CUDA 编译产物 =====
+wall_x/model/core/ops/*.so
+wall_x/model/core/ops/_cuda_ext_bin*.so
+
+# ===== 训练产出（防止被 Codex 快照进 git 撑爆磁盘）=====
+training_runs/

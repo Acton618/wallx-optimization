@@ -1,0 +1,100 @@
+{
+  "overall": {
+    "attempted": 10,
+    "successes": 9,
+    "success_rate": 0.9,
+    "failed": 0
+  },
+  "per_task": {
+    "libero_object_t0": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        122
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 122.0
+    },
+    "libero_object_t1": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        117
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 117.0
+    },
+    "libero_object_t2": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        114
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 114.0
+    },
+    "libero_object_t3": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        121
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 121.0
+    },
+    "libero_object_t4": {
+      "attempted": 1,
+      "successes": 0,
+      "steps": [
+        280
+      ],
+      "success_rate": 0.0,
+      "avg_steps": 280.0
+    },
+    "libero_object_t5": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        163
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 163.0
+    },
+    "libero_object_t6": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        147
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 147.0
+    },
+    "libero_object_t7": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        121
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 121.0
+    },
+    "libero_object_t8": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        136
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 136.0
+    },
+    "libero_object_t9": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        133
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 133.0
+    }
+  }
+}

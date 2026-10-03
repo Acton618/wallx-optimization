@@ -1,0 +1,32 @@
+{"ts": "2026-10-03T11:07:06", "event": "session_start", "pending": 10, "skipped_completed": 0, "batch_sync_mode": true, "num_frames": 10, "batch_size": 1}
+{"ts": "2026-10-03T11:07:06", "event": "claimed", "ep_id": ["libero_10", 0, 0], "frame": 0}
+{"ts": "2026-10-03T11:09:42", "event": "completed", "ep_id": ["libero_10", 0, 0], "success": false, "steps": 520, "elapsed_sec": 156.237, "task_desc": "put both the alphabet soup and the tomato sauce in the basket"}
+{"ts": "2026-10-03T11:09:42", "event": "frame_done", "frame": 0, "size": 1}
+{"ts": "2026-10-03T11:09:42", "event": "claimed", "ep_id": ["libero_10", 1, 0], "frame": 1}
+{"ts": "2026-10-03T11:12:21", "event": "completed", "ep_id": ["libero_10", 1, 0], "success": false, "steps": 520, "elapsed_sec": 159.679, "task_desc": "put both the cream cheese box and the butter in the basket"}
+{"ts": "2026-10-03T11:12:21", "event": "frame_done", "frame": 1, "size": 1}
+{"ts": "2026-10-03T11:12:21", "event": "claimed", "ep_id": ["libero_10", 2, 0], "frame": 2}
+{"ts": "2026-10-03T11:14:32", "event": "completed", "ep_id": ["libero_10", 2, 0], "success": false, "steps": 520, "elapsed_sec": 130.672, "task_desc": "turn on the stove and put the moka pot on it"}
+{"ts": "2026-10-03T11:14:32", "event": "frame_done", "frame": 2, "size": 1}
+{"ts": "2026-10-03T11:14:32", "event": "claimed", "ep_id": ["libero_10", 3, 0], "frame": 3}
+{"ts": "2026-10-03T11:16:35", "event": "completed", "ep_id": ["libero_10", 3, 0], "success": false, "steps": 520, "elapsed_sec": 123.208, "task_desc": "put the black bowl in the bottom drawer of the cabinet and close it"}
+{"ts": "2026-10-03T11:16:35", "event": "frame_done", "frame": 3, "size": 1}
+{"ts": "2026-10-03T11:16:35", "event": "claimed", "ep_id": ["libero_10", 4, 0], "frame": 4}
+{"ts": "2026-10-03T11:19:18", "event": "completed", "ep_id": ["libero_10", 4, 0], "success": false, "steps": 520, "elapsed_sec": 162.431, "task_desc": "put the white mug on the left plate and put the yellow and white mug on the right plate"}
+{"ts": "2026-10-03T11:19:18", "event": "frame_done", "frame": 4, "size": 1}
+{"ts": "2026-10-03T11:19:18", "event": "claimed", "ep_id": ["libero_10", 5, 0], "frame": 5}
+{"ts": "2026-10-03T11:21:24", "event": "completed", "ep_id": ["libero_10", 5, 0], "success": false, "steps": 520, "elapsed_sec": 126.6, "task_desc": "pick up the book and place it in the back compartment of the caddy"}
+{"ts": "2026-10-03T11:21:24", "event": "frame_done", "frame": 5, "size": 1}
+{"ts": "2026-10-03T11:21:24", "event": "claimed", "ep_id": ["libero_10", 6, 0], "frame": 6}
+{"ts": "2026-10-03T11:24:05", "event": "completed", "ep_id": ["libero_10", 6, 0], "success": false, "steps": 520, "elapsed_sec": 160.333, "task_desc": "put the white mug on the plate and put the chocolate pudding to the right of the plate"}
+{"ts": "2026-10-03T11:24:05", "event": "frame_done", "frame": 6, "size": 1}
+{"ts": "2026-10-03T11:24:05", "event": "claimed", "ep_id": ["libero_10", 7, 0], "frame": 7}
+{"ts": "2026-10-03T11:25:54", "event": "completed", "ep_id": ["libero_10", 7, 0], "success": true, "steps": 337, "elapsed_sec": 108.9, "task_desc": "put both the alphabet soup and the cream cheese box in the basket"}
+{"ts": "2026-10-03T11:25:54", "event": "frame_done", "frame": 7, "size": 1}
+{"ts": "2026-10-03T11:25:54", "event": "claimed", "ep_id": ["libero_10", 8, 0], "frame": 8}
+{"ts": "2026-10-03T11:27:59", "event": "completed", "ep_id": ["libero_10", 8, 0], "success": false, "steps": 520, "elapsed_sec": 125.309, "task_desc": "put both moka pots on the stove"}
+{"ts": "2026-10-03T11:27:59", "event": "frame_done", "frame": 8, "size": 1}
+{"ts": "2026-10-03T11:27:59", "event": "claimed", "ep_id": ["libero_10", 9, 0], "frame": 9}
+{"ts": "2026-10-03T11:30:01", "event": "completed", "ep_id": ["libero_10", 9, 0], "success": false, "steps": 520, "elapsed_sec": 122.464, "task_desc": "put the yellow and white mug in the microwave and close it"}
+{"ts": "2026-10-03T11:30:01", "event": "frame_done", "frame": 9, "size": 1}
+{"ts": "2026-10-03T11:30:01", "event": "session_end", "report_path": "/root/wall-x/wall-x-v0/eval_results/full_libero_20261003_103711/json/libero_10/report.json", "overall_success_rate": 0.1}

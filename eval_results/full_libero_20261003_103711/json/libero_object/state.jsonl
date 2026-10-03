@@ -1,0 +1,32 @@
+{"ts": "2026-10-03T10:46:56", "event": "session_start", "pending": 10, "skipped_completed": 0, "batch_sync_mode": true, "num_frames": 10, "batch_size": 1}
+{"ts": "2026-10-03T10:46:56", "event": "claimed", "ep_id": ["libero_object", 0, 0], "frame": 0}
+{"ts": "2026-10-03T10:47:44", "event": "completed", "ep_id": ["libero_object", 0, 0], "success": true, "steps": 122, "elapsed_sec": 48.12, "task_desc": "pick up the alphabet soup and place it in the basket"}
+{"ts": "2026-10-03T10:47:44", "event": "frame_done", "frame": 0, "size": 1}
+{"ts": "2026-10-03T10:47:44", "event": "claimed", "ep_id": ["libero_object", 1, 0], "frame": 1}
+{"ts": "2026-10-03T10:48:28", "event": "completed", "ep_id": ["libero_object", 1, 0], "success": true, "steps": 117, "elapsed_sec": 44.182, "task_desc": "pick up the cream cheese and place it in the basket"}
+{"ts": "2026-10-03T10:48:28", "event": "frame_done", "frame": 1, "size": 1}
+{"ts": "2026-10-03T10:48:28", "event": "claimed", "ep_id": ["libero_object", 2, 0], "frame": 2}
+{"ts": "2026-10-03T10:49:09", "event": "completed", "ep_id": ["libero_object", 2, 0], "success": true, "steps": 114, "elapsed_sec": 41.349, "task_desc": "pick up the salad dressing and place it in the basket"}
+{"ts": "2026-10-03T10:49:09", "event": "frame_done", "frame": 2, "size": 1}
+{"ts": "2026-10-03T10:49:09", "event": "claimed", "ep_id": ["libero_object", 3, 0], "frame": 3}
+{"ts": "2026-10-03T10:49:52", "event": "completed", "ep_id": ["libero_object", 3, 0], "success": true, "steps": 121, "elapsed_sec": 42.076, "task_desc": "pick up the bbq sauce and place it in the basket"}
+{"ts": "2026-10-03T10:49:52", "event": "frame_done", "frame": 3, "size": 1}
+{"ts": "2026-10-03T10:49:52", "event": "claimed", "ep_id": ["libero_object", 4, 0], "frame": 4}
+{"ts": "2026-10-03T10:51:18", "event": "completed", "ep_id": ["libero_object", 4, 0], "success": false, "steps": 280, "elapsed_sec": 86.238, "task_desc": "pick up the ketchup and place it in the basket"}
+{"ts": "2026-10-03T10:51:18", "event": "frame_done", "frame": 4, "size": 1}
+{"ts": "2026-10-03T10:51:18", "event": "claimed", "ep_id": ["libero_object", 5, 0], "frame": 5}
+{"ts": "2026-10-03T10:52:13", "event": "completed", "ep_id": ["libero_object", 5, 0], "success": true, "steps": 163, "elapsed_sec": 54.757, "task_desc": "pick up the tomato sauce and place it in the basket"}
+{"ts": "2026-10-03T10:52:13", "event": "frame_done", "frame": 5, "size": 1}
+{"ts": "2026-10-03T10:52:13", "event": "claimed", "ep_id": ["libero_object", 6, 0], "frame": 6}
+{"ts": "2026-10-03T10:53:03", "event": "completed", "ep_id": ["libero_object", 6, 0], "success": true, "steps": 147, "elapsed_sec": 50.943, "task_desc": "pick up the butter and place it in the basket"}
+{"ts": "2026-10-03T10:53:03", "event": "frame_done", "frame": 6, "size": 1}
+{"ts": "2026-10-03T10:53:03", "event": "claimed", "ep_id": ["libero_object", 7, 0], "frame": 7}
+{"ts": "2026-10-03T10:53:46", "event": "completed", "ep_id": ["libero_object", 7, 0], "success": true, "steps": 121, "elapsed_sec": 42.97, "task_desc": "pick up the milk and place it in the basket"}
+{"ts": "2026-10-03T10:53:46", "event": "frame_done", "frame": 7, "size": 1}
+{"ts": "2026-10-03T10:53:46", "event": "claimed", "ep_id": ["libero_object", 8, 0], "frame": 8}
+{"ts": "2026-10-03T10:54:32", "event": "completed", "ep_id": ["libero_object", 8, 0], "success": true, "steps": 136, "elapsed_sec": 45.736, "task_desc": "pick up the chocolate pudding and place it in the basket"}
+{"ts": "2026-10-03T10:54:32", "event": "frame_done", "frame": 8, "size": 1}
+{"ts": "2026-10-03T10:54:32", "event": "claimed", "ep_id": ["libero_object", 9, 0], "frame": 9}
+{"ts": "2026-10-03T10:55:21", "event": "completed", "ep_id": ["libero_object", 9, 0], "success": true, "steps": 133, "elapsed_sec": 48.832, "task_desc": "pick up the orange juice and place it in the basket"}
+{"ts": "2026-10-03T10:55:21", "event": "frame_done", "frame": 9, "size": 1}
+{"ts": "2026-10-03T10:55:21", "event": "session_end", "report_path": "/root/wall-x/wall-x-v0/eval_results/full_libero_20261003_103711/json/libero_object/report.json", "overall_success_rate": 0.9}

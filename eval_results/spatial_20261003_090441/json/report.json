@@ -1,0 +1,37 @@
+{
+  "overall": {
+    "attempted": 3,
+    "successes": 2,
+    "success_rate": 0.6666666666666666,
+    "failed": 0
+  },
+  "per_task": {
+    "libero_spatial_t0": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        69
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 69.0
+    },
+    "libero_spatial_t1": {
+      "attempted": 1,
+      "successes": 0,
+      "steps": [
+        220
+      ],
+      "success_rate": 0.0,
+      "avg_steps": 220.0
+    },
+    "libero_spatial_t2": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        93
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 93.0
+    }
+  }
+}
