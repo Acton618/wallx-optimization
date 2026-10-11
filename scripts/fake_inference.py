@@ -55,7 +55,7 @@ def _build_fake_observation(seed: int, image_size: int, gripper_dim: int) -> dic
     }
 
 
-def _predict_raw_action(adapter, payload: dict) -> np.ndarray:
+def _predict_raw_action(adapter, payload: dict) -> tuple[np.ndarray, dict | None]:
     from wall_x._vendor.harrix.envs.libero_common import encode_proprio
 
     observation = encode_proprio(
@@ -84,7 +84,7 @@ def _predict_raw_action(adapter, payload: dict) -> np.ndarray:
     predict_action = model_output["predict_action"]
     if isinstance(predict_action, torch.Tensor):
         predict_action = predict_action.detach().cpu().numpy()
-    return np.asarray(predict_action[0])
+    return np.asarray(predict_action[0]), model_output.get("ode_optimization_info")
 
 
 def parse_args() -> argparse.Namespace:
@@ -143,12 +143,14 @@ def main() -> int:
         "instruction": args.instruction,
         "noise": None,
     }
-    action = _predict_raw_action(adapter, payload)
+    action, ode_info = _predict_raw_action(adapter, payload)
 
     print("Fake inference succeeded.")
     print(f"action shape: {action.shape}")
     print(f"action dtype: {action.dtype}")
     print(f"action min/max: {float(action.min()):.6f} / {float(action.max()):.6f}")
+    if ode_info is not None:
+        print(f"ODE optimization info: {ode_info}")
     return 0
 
 

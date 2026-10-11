@@ -8,9 +8,7 @@ import torch
 import torch.nn.functional as F
 from PIL import Image, ImageDraw
 
-DEBUG_OUTPUT_DIR = Path(
-    "/opt/data/zhuoziying/wall-x/debug_output"
-)
+DEBUG_OUTPUT_DIR = Path(__file__).resolve().parents[4] / "debug_output"
 
 NOISY_ACTION_LOG_PATH = (
     DEBUG_OUTPUT_DIR / "noisy_action_trajectory.txt"
@@ -787,6 +785,7 @@ def save_attention_heatmap(
     alpha=0.5,
     mode="nearest",
     topk_vis=5,              # ✅ 在图上画几个 top token
+    token_counts=None,
 ):
     """
     ✅ WALLOX / Qwen2.5-VL 专用（诊断版）
@@ -823,17 +822,53 @@ def save_attention_heatmap(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # ========== 解析 token grid ==========
+    # ``image_grid_thw`` describes the unpruned visual grid.  When VisPruner
+    # is enabled, ``token_counts`` carries the actual post-pruning count for
+    # each image; the original grid can no longer be reshaped directly.
+    if token_counts is not None:
+        token_counts = [int(count) for count in token_counts]
+        if len(token_counts) != num_images:
+            raise ValueError("token_counts 数量与 image_grid_thw 不匹配")
+        if sum(token_counts) != attention_maps.shape[-1]:
+            raise ValueError(
+                "token_counts 总数与 attention_maps 不匹配: "
+                f"counts={sum(token_counts)}, maps={attention_maps.shape[-1]}"
+            )
+
+    def _grid_shape(count, target_h, target_w):
+        if count == target_h * target_w:
+            return target_h, target_w
+        # Pick a factor pair close to the source aspect ratio.  This keeps a
+        # compact diagnostic image for budgets such as 20 (4x5) while also
+        # handling prime or otherwise irregular token budgets.
+        best = (1, count)
+        best_error = float("inf")
+        for height in range(1, int(count**0.5) + 1):
+            if count % height:
+                continue
+            width = count // height
+            error = abs((height / width) - (target_h / target_w))
+            if error < best_error:
+                best, best_error = (height, width), error
+        return best
+
     image_infos = []
     for i in range(num_images):
         t, patch_h, patch_w = image_grid_thw[i].tolist()
-        token_h = patch_h // spatial_merge_size
-        token_w = patch_w // spatial_merge_size
+        source_h = patch_h // spatial_merge_size
+        source_w = patch_w // spatial_merge_size
+        count = (
+            token_counts[i]
+            if token_counts is not None
+            else int(t) * source_h * source_w
+        )
+        token_h, token_w = _grid_shape(count, source_h, source_w)
         image_infos.append(
             {
                 "image_idx": i,
                 "token_h": token_h,
                 "token_w": token_w,
-                "token_count": token_h * token_w,
+                "token_count": count,
             }
         )
 

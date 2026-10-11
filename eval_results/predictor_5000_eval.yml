@@ -1,0 +1,92 @@
+# 本机评测配置。路径按 /root/wall-x 和 /root/dataset 适配。
+model_type: qwen2_5
+
+task:
+  dof_config:
+    master_right_ee_cartesian_pos: 3
+    master_right_ee_rotation: 3
+    master_right_gripper: 1
+    action_padding: 19
+  ar_dof_config:
+    master_right_ee_cartesian_pos: 3
+    master_right_ee_rotation: 3
+    master_right_gripper: 1
+    action_padding: 19
+  agent_pos_config:
+    follow_right_ee_cartesian_pos: 3
+    follow_right_ee_rotation: 3
+    follow_right_gripper: 2
+    action_padding: 18
+  action_horizon: 10
+  action_horizon_flow: 10
+  use_state_string_representation: false
+
+model:
+  backbone: qwen2_5
+  config_path: /root/wall-x/wall-x-model/wall-oss-0.5_v1_ft/config.json
+  # checkpoint 内含 tokenizer 和 processor 所需文件；推理会使用此目录。
+  processor_path: /root/wall-x/wall-x-model/wall-oss-0.5_v1_ft
+  pretrained_path: /root/wall-x/wall-x-model/wall-oss-0.5_v1_ft
+  attn_deterministic: true
+  use_ema: false
+  flow_loss_weight: 1.0
+  ar_loss_weight: 0.01
+  vispruner_enable: true
+  vispruner_score_layers: [31, 23]
+  vispruner_score_layer: 31
+  vispruner_score_reduce: attn_max
+  vispruner_keep_num: 20
+  predictor_keep_num: 40
+  predictor_enable: true
+  predictor_checkpoint_path: /root/wall-x/wall-x-dachuang-v1/eval_results/token_score_predictor_5000_l16_mix.pt
+  predictor_early_layer: 16
+
+data:
+  dataset_type: lerobot
+  lerobot_config:
+    repo_id: /root/dataset/lerobot/libero
+    root: /root/dataset/lerobot/libero
+  key_mappings:
+    camera:
+      observation.images.image: face_view
+      observation.images.image2: right_wrist_view
+    state: observation.state
+    action: action
+  norm_stats_path: /root/wall-x/wall-x-model/wall-oss-0.5_v1_ft/norm_stats.json
+  train_test_split: 0.95
+  num_workers: 1
+  max_length: 1024
+  resolution:
+    face_view: 256
+    right_wrist_view: 256
+
+hyperparams:
+  num_epoch: 1
+  batch_size_per_gpu: 1
+  gradient_accumulation_steps: 1
+  seed: 10222
+
+distributed:
+  use_fsdp: true
+  use_mixed_precision: true
+  bf16: true
+  fsdp_cpu_offload: false
+  use_gradient_checkpointing: true
+
+logging:
+  log_name: libero_v1_ft_eval
+  log_project: lerobot_libero_ft
+  log_entity: null
+  use_wandb: false
+  log_interval: 10
+  save_interval: 10000
+  val_interval: 1000000
+  epoch_save_interval: 1
+
+checkpoint:
+  save_path: /tmp/wallx_eval
+  resume_from: /root/wall-x/wall-x-model/wall-oss-0.5_v1_ft/model.safetensors
+
+debug:
+  profile: false
+  nvtx: false

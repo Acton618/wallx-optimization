@@ -817,8 +817,16 @@ class Qwen2_5_VisionTransformerPretrainedModel(Qwen2_5_VLPreTrainedModel):
         return window_index, cu_window_seqlens
 
     def forward(
-        self, hidden_states: torch.Tensor, grid_thw: torch.Tensor
-    ) -> torch.Tensor:
+        self,
+        hidden_states: torch.Tensor,
+        grid_thw: torch.Tensor,
+        *,
+        return_early_features: bool = False,
+        score_predictor: nn.Module | None = None,
+        predictor_early_layer: int = 8,
+        predictor_keep_num: int = 20,
+        predictor_important_ratio: float = 0.5,
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor | list[torch.Tensor]]:
         """
         Args:
             hidden_states (`torch.Tensor` of shape `(seq_len, hidden_size)`):
@@ -873,6 +881,17 @@ class Qwen2_5_VisionTransformerPretrainedModel(Qwen2_5_VLPreTrainedModel):
             (cu_window_seqlens[1:] - cu_window_seqlens[:-1]).max().item()
         )
 
+        if (return_early_features or score_predictor is not None) and not (
+            1 <= predictor_early_layer <= len(self.blocks)
+        ):
+            raise ValueError("predictor_early_layer must be within the vision tower")
+        if score_predictor is not None and self.training:
+            raise ValueError("predictor early pruning is supported only during inference")
+        original_groups = seq_len // self.spatial_merge_unit
+        reverse_indices = torch.argsort(window_index)
+        early_features = None
+        selected_indices = None
+
         for layer_num, blk in enumerate(self.blocks):
             if layer_num in self.fullatt_block_indexes:
                 cu_seqlens_now = cu_seqlens
@@ -896,10 +915,86 @@ class Qwen2_5_VisionTransformerPretrainedModel(Qwen2_5_VLPreTrainedModel):
                     position_embeddings=position_embeddings,
                 )
 
-        hidden_states = self.merger(hidden_states)
-        reverse_indices = torch.argsort(window_index)
-        hidden_states = hidden_states[reverse_indices, :]
+            if (return_early_features or score_predictor is not None) and (
+                layer_num + 1 == predictor_early_layer
+            ):
+                early_features = hidden_states.reshape(
+                    original_groups, self.spatial_merge_unit, -1
+                ).mean(dim=1)[reverse_indices]
+                if score_predictor is not None:
+                    from .vispruner.algorithms import image_token_lengths, select_indices
 
+                    with torch.no_grad():
+                        scorer = score_predictor.to(
+                            device=early_features.device, dtype=early_features.dtype
+                        )
+                        scores = scorer(early_features).float()
+                    lengths = image_token_lengths(grid_thw, self.spatial_merge_size)
+                    selected_indices = []
+                    offset = 0
+                    for length in lengths:
+                        part = slice(offset, offset + length)
+                        indices = select_indices(
+                            scores[part],
+                            early_features[part],
+                            predictor_keep_num,
+                            predictor_important_ratio,
+                        )
+                        selected_indices.append(indices)
+                        offset += length
+                    keep_original = torch.zeros(
+                        original_groups, dtype=torch.bool, device=hidden_states.device
+                    )
+                    offset = 0
+                    for length, indices in zip(lengths, selected_indices):
+                        keep_original[offset + indices] = True
+                        offset += length
+                    keep_window = keep_original[window_index.to(keep_original.device)]
+                    hidden_states = hidden_states.reshape(
+                        original_groups, self.spatial_merge_unit, -1
+                    )[keep_window].reshape(-1, hidden_states.shape[-1])
+                    position_embeddings = tuple(
+                        emb.reshape(original_groups, self.spatial_merge_unit, -1)[
+                            keep_window
+                        ].reshape(-1, emb.shape[-1])
+                        for emb in position_embeddings
+                    )
+
+                    # Keep the original frame/window boundaries, dropping empty
+                    # segments so both eager and FlashAttention see valid lengths.
+                    patch_keep = torch.repeat_interleave(
+                        keep_window, self.spatial_merge_unit
+                    )
+
+                    def retained_boundaries(boundaries):
+                        edges = boundaries.tolist()
+                        counts = [
+                            int(patch_keep[start:end].sum().item())
+                            for start, end in zip(edges[:-1], edges[1:])
+                        ]
+                        counts = [count for count in counts if count]
+                        return torch.tensor(
+                            [0] + counts,
+                            dtype=torch.int32,
+                            device=hidden_states.device,
+                        ).cumsum(0, dtype=torch.int32)
+
+                    cu_seqlens = retained_boundaries(cu_seqlens)
+                    cu_window_seqlens = retained_boundaries(cu_window_seqlens)
+                    max_seqlen_full = int((cu_seqlens[1:] - cu_seqlens[:-1]).max())
+                    max_seqlen_window = int(
+                        (cu_window_seqlens[1:] - cu_window_seqlens[:-1]).max()
+                    )
+                    reverse_indices = torch.argsort(
+                        window_index.to(keep_window.device)[keep_window]
+                    )
+
+        hidden_states = self.merger(hidden_states)
+        hidden_states = hidden_states[reverse_indices, :]
+        if score_predictor is not None:
+            return hidden_states, selected_indices
+        if return_early_features:
+            return hidden_states, early_features
         return hidden_states
 
 

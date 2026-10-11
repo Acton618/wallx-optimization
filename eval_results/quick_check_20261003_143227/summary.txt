@@ -1,0 +1,2 @@
+run_dir=/root/wall-x/wall-x-dachuang-v1/eval_results/quick_check_20261003_143227
+fake_exit=0

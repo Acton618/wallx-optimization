@@ -353,5 +353,33 @@ class Qwen2_5_VLConfig(PretrainedConfig):
         if train_config.get("noise_scheduler", None) is not None:
             self.noise_scheduler = train_config["noise_scheduler"]
 
+        # Optional inference experiments.  Keep these fields on the HF config
+        # so the model can read them from either a YAML override or a future
+        # checkpoint-local config.  All defaults are disabled.
+        optional_fields = {
+            "vispruner_enable": False,
+            "vispruner_score_layers": [31, 23],
+            "vispruner_score_layer": 31,
+            "vispruner_score_reduce": "attn_max",
+            "vispruner_keep_num": 20,
+            "vispruner_important_ratio": 0.5,
+            "vispruner_seed": 0,
+            "predictor_enable": False,
+            "predictor_checkpoint_path": None,
+            "predictor_early_layer": 16,
+            "predictor_keep_num": 40,
+            "ode_optimization_enable": False,
+            "ode_cache_enable": False,
+            "ode_cache_interval": 2,
+            "ode_cache_start_step": 2,
+            "ode_early_stop_enable": False,
+            "ode_early_stop_threshold": 0.01,
+            "ode_early_stop_min_steps": 2,
+            "ode_early_stop_metric": "mean_abs",
+            "ode_early_stop_patience": 1,
+        }
+        for name, default in optional_fields.items():
+            setattr(self, name, train_config.get(name, getattr(self, name, default)))
+
 
 __all__ = ["Qwen2_5_VLConfig"]

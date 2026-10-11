@@ -1,0 +1,2 @@
+{"ts": "2026-10-05T15:43:05", "event": "session_start", "pending": 1, "skipped_completed": 0, "batch_sync_mode": true, "num_frames": 1, "batch_size": 1}
+{"ts": "2026-10-05T15:43:05", "event": "claimed", "ep_id": ["libero_spatial", 0, 0], "frame": 0}

@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "feature_source": "early_hidden",
+    "early_layer": 16,
+    "score_layer": 31,
+    "score_reduce": "attn_max",
+    "repo_id": "libero",
+    "split": "train",
+    "num_samples_requested": 5000,
+    "num_records": 8140,
+    "episode_count": 72,
+    "split_seed": 42
+  },
+  "shards": [
+    "eval_results/predictor_teacher_5000/teacher_train_00000.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00001.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00002.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00003.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00004.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00005.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00006.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00007.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00008.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00009.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00010.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00011.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00012.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00013.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00014.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00015.pt",
+    "eval_results/predictor_teacher_5000/teacher_train_00016.pt"
+  ]
+}

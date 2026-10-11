@@ -1,0 +1,5 @@
+{"ts": "2026-10-07T04:19:31", "event": "session_start", "pending": 1, "skipped_completed": 0, "batch_sync_mode": true, "num_frames": 1, "batch_size": 1}
+{"ts": "2026-10-07T04:19:31", "event": "claimed", "ep_id": ["libero_spatial", 0, 0], "frame": 0}
+{"ts": "2026-10-07T04:20:24", "event": "completed", "ep_id": ["libero_spatial", 0, 0], "success": true, "steps": 168, "elapsed_sec": 52.964, "task_desc": "pick up the black bowl between the plate and the ramekin and place it on the plate"}
+{"ts": "2026-10-07T04:20:24", "event": "frame_done", "frame": 0, "size": 1}
+{"ts": "2026-10-07T04:20:24", "event": "session_end", "report_path": "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_5000_task0_20261007_041743/json/report.json", "overall_success_rate": 1.0}

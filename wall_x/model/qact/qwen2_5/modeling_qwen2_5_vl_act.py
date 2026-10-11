@@ -863,10 +863,35 @@ class Qwen2_5_VLMoEForAction(
 
     def _build_visual(self, config, use_selective_recompute):
         """Factory method for visual encoder. Subclasses may override to swap implementation."""
-        return Qwen2_5_VisionTransformerPretrainedModel(
+        visual = Qwen2_5_VisionTransformerPretrainedModel(
             config=config.vision_config,
             use_selective_recompute=use_selective_recompute,
         )
+        # --- predictor begin ---
+        if bool(getattr(config, "predictor_enable", False)):
+            from wall_x.model.qact.qwen2_5.vispruner.predictor import load_predictor
+
+            checkpoint_path = getattr(config, "predictor_checkpoint_path", None)
+            if not checkpoint_path:
+                raise ValueError(
+                    "predictor_enable=True requires predictor_checkpoint_path"
+                )
+            visual._vispruner_predictor = load_predictor(
+                checkpoint_path,
+                input_dim=int(config.vision_config.hidden_size),
+                early_layer=int(getattr(config, "predictor_early_layer", 8)),
+            )
+        # --- predictor end ---
+        # --- vispruner begin ---
+        from wall_x.model.qact.qwen2_5.vispruner.config import VisPrunerConfig
+        from wall_x.model.qact.qwen2_5.vispruner.hook import install_hooks
+
+        if VisPrunerConfig.from_model_config(config).enabled and not bool(
+            getattr(config, "predictor_enable", False)
+        ):
+            install_hooks(visual, config)
+        # --- vispruner end ---
+        return visual
 
     def _post_init_engine(self, config):
         """Hook called at the end of __init__. Subclasses may override to add engine-specific state."""
@@ -1931,13 +1956,129 @@ class Qwen2_5_VLMoEForAction(
 
         # Timing: input embedding processing
         img_mask = None
+        image_token_counts = None
+        if image_grid_thw is not None:
+            spatial_merge_size = self.config.vision_config.spatial_merge_size
+            image_token_counts = [
+                int(t) * (int(h) // spatial_merge_size) * (int(w) // spatial_merge_size)
+                for t, h, w in image_grid_thw.tolist()
+            ]
         if inputs_embeds is None:
             inputs_embeds = self.model.embed_tokens(input_ids)
             if pixel_values is not None:
                 pixel_values = pixel_values.type(self.visual.dtype)
                 # from wall_x.utils.timers import ScopeTimer
                 # with ScopeTimer("pixel_values.visual"):
-                image_embeds = self.visual(pixel_values, grid_thw=image_grid_thw)
+                predictor = getattr(self.visual, "_vispruner_predictor", None)
+                predictor_keep_indices = None
+                if predictor is not None:
+                    image_embeds, predictor_keep_indices = self.visual(
+                        pixel_values,
+                        grid_thw=image_grid_thw,
+                        score_predictor=predictor,
+                        predictor_early_layer=int(
+                            getattr(self.config, "predictor_early_layer", 8)
+                        ),
+                        predictor_keep_num=int(
+                            getattr(
+                                self.config,
+                                "predictor_keep_num",
+                                getattr(self.config, "vispruner_keep_num", 20),
+                            )
+                        ),
+                        predictor_important_ratio=float(
+                            getattr(self.config, "vispruner_important_ratio", 0.5)
+                        ),
+                    )
+                else:
+                    image_embeds = self.visual(pixel_values, grid_thw=image_grid_thw)
+
+                # --- vispruner begin ---
+                from wall_x.model.qact.qwen2_5.vispruner import (
+                    maybe_prune_images,
+                    plan_from_keep_indices,
+                )
+
+                if predictor is not None and predictor_keep_indices is not None:
+                    prune_plan = plan_from_keep_indices(
+                        image_embeds=image_embeds,
+                        keep_indices=predictor_keep_indices,
+                        image_grid_thw=image_grid_thw,
+                        input_ids=input_ids,
+                        spatial_merge_size=self.config.vision_config.spatial_merge_size,
+                        model_config=self.config,
+                    )
+                else:
+                    prune_plan = maybe_prune_images(
+                        visual=self.visual,
+                        image_embeds=image_embeds,
+                        image_grid_thw=image_grid_thw,
+                        input_ids=input_ids,
+                        attention_mask=attention_mask,
+                        labels=labels,
+                        moe_token_types=moe_token_types,
+                        position_ids=position_ids,
+                        inputs_embeds=inputs_embeds,
+                        spatial_merge_size=self.config.vision_config.spatial_merge_size,
+                        model_config=self.config,
+                    )
+                if prune_plan.pruned:
+                    # M-RoPE image coordinates must come from the original
+                    # image grid.  Apply the same keep mask to those position
+                    # IDs as to the sequence; recomputing from the original
+                    # grid after pruning would assign positions to tokens
+                    # that are no longer present.
+                    if position_ids is None:
+                        position_ids, _ = get_rope_index(
+                            input_ids,
+                            image_grid_thw,
+                            video_grid_thw,
+                            second_per_grid_ts,
+                            attention_mask,
+                            self.config.vision_config.spatial_merge_size,
+                            self.config.image_token_id,
+                            self.config.video_token_id,
+                            self.config.vision_start_token_id,
+                            self.config.vision_config.tokens_per_second,
+                        )
+                    image_embeds = prune_plan.image_embeds
+                    image_token_counts = [
+                        int(indices.numel())
+                        for indices in (prune_plan.keep_indices or [])
+                    ]
+                    (
+                        input_ids,
+                        attention_mask,
+                        labels,
+                        moe_token_types,
+                        position_ids,
+                        inputs_embeds,
+                    ) = prune_plan.apply(
+                        input_ids=input_ids,
+                        attention_mask=attention_mask,
+                        labels=labels,
+                        moe_token_types=moe_token_types,
+                        position_ids=position_ids,
+                        inputs_embeds=inputs_embeds,
+                    )
+                    # Rebuild sequence-derived boundaries and the rotary
+                    # delta using the retained positions and new sequence
+                    # length.  Position IDs themselves retain their original
+                    # image coordinates.
+                    prefix_length = None
+                    start_indices, end_indices = None, None
+                    if position_ids is not None:
+                        max_position_ids = position_ids.amax(dim=0).amax(
+                            dim=-1, keepdim=True
+                        )
+                        rope_deltas = (
+                            max_position_ids + 1 - input_ids.shape[-1]
+                        )
+                        self.rope_deltas = rope_deltas
+                    else:
+                        self.rope_deltas = None
+                # --- vispruner end ---
+
                 n_image_tokens = (input_ids == self.config.image_token_id).sum().item()
                 n_image_features = image_embeds.shape[0]
                 if n_image_tokens != n_image_features:
@@ -2143,6 +2284,7 @@ class Qwen2_5_VLMoEForAction(
             "output_attentions": output_attentions,
             "img_mask": img_mask,
             "image_grid_thw": image_grid_thw,  ###补充对应数据
+            "image_token_counts": image_token_counts,
             "pixel_values": pixel_values,      ###补充对应数据
         }
 
@@ -2294,9 +2436,147 @@ class Qwen2_5_VLMoEForAction(
 
             return v_t
 
-        action_trajectory = odeint(
-            step_with_kvcache, ctx["noisy_action"], ctx["times"][1:], method="euler"
+        # Optional ODE acceleration.  The fixed-step torchdiffeq path remains
+        # the default and is intentionally untouched when the master switch is
+        # disabled.  Enabling the master switch still requires opting into one
+        # of the two approximations below.
+        ode_optimization_enable = bool(
+            getattr(self.config, "ode_optimization_enable", False)
         )
+        ode_cache_enable = ode_optimization_enable and bool(
+            getattr(self.config, "ode_cache_enable", False)
+        )
+        ode_early_stop_enable = ode_optimization_enable and bool(
+            getattr(self.config, "ode_early_stop_enable", False)
+        )
+        ode_cache_interval = max(
+            1, int(getattr(self.config, "ode_cache_interval", 2))
+        )
+        ode_cache_start_step = max(
+            1, int(getattr(self.config, "ode_cache_start_step", 2))
+        )
+        ode_early_stop_threshold = float(
+            getattr(self.config, "ode_early_stop_threshold", 0.01)
+        )
+        ode_early_stop_min_steps = max(
+            1, int(getattr(self.config, "ode_early_stop_min_steps", 2))
+        )
+        ode_early_stop_patience = max(
+            1, int(getattr(self.config, "ode_early_stop_patience", 1))
+        )
+        ode_early_stop_metric = str(
+            getattr(self.config, "ode_early_stop_metric", "mean_abs")
+        )
+
+        if ode_early_stop_enable and ode_early_stop_metric not in {
+            "mean_abs",
+            "max_abs",
+            "l2",
+        }:
+            raise ValueError(
+                "Unsupported ode_early_stop_metric="
+                f"{ode_early_stop_metric!r}; expected mean_abs, max_abs, or l2."
+            )
+
+        ode_runtime = {
+            "calls": 0,
+            "refreshes": 0,
+            "hits": 0,
+            "last_velocity": None,
+            "last_refresh_step": None,
+        }
+
+        def optimized_step(timestep, noisy_action, ode_step_index):
+            ode_runtime["calls"] += 1
+            if (
+                ode_cache_enable
+                and ode_runtime["last_velocity"] is not None
+                and ode_step_index >= ode_cache_start_step
+                and (
+                    ode_step_index - int(ode_runtime["last_refresh_step"])
+                )
+                < ode_cache_interval
+            ):
+                ode_runtime["hits"] += 1
+                return ode_runtime["last_velocity"]
+
+            ode_runtime["refreshes"] += 1
+            velocity = step_with_kvcache(
+                timestep, noisy_action
+            )
+            ode_runtime["last_velocity"] = velocity.detach()
+            ode_runtime["last_refresh_step"] = int(ode_step_index)
+            return velocity
+
+        if ode_cache_enable or ode_early_stop_enable:
+            current_action = ctx["noisy_action"]
+            action_trajectory = [current_action]
+            actual_steps = 1  # the prefill already advanced from t0 to t1
+            no_change_count = 0
+            stopped_early = False
+
+            for step_i, timestep in enumerate(ctx["times"][1:-1], start=1):
+                previous_action = current_action
+                velocity = optimized_step(
+                    timestep, current_action, ode_step_index=step_i
+                )
+                step_dt = ctx["times"][step_i + 1] - ctx["times"][step_i]
+                current_action = current_action + step_dt * velocity
+                action_trajectory.append(current_action)
+                actual_steps += 1
+
+                if ode_early_stop_enable:
+                    action_delta = (current_action - previous_action).detach()
+                    if ode_early_stop_metric == "max_abs":
+                        delta_value = action_delta.abs().max()
+                    elif ode_early_stop_metric == "l2":
+                        flat_delta = action_delta.reshape(action_delta.shape[0], -1)
+                        delta_value = torch.linalg.vector_norm(
+                            flat_delta, dim=1
+                        ).mean()
+                    else:
+                        delta_value = action_delta.abs().mean()
+
+                    if (
+                        actual_steps >= ode_early_stop_min_steps
+                        and delta_value.item() < ode_early_stop_threshold
+                    ):
+                        no_change_count += 1
+                    else:
+                        no_change_count = 0
+                    if no_change_count >= ode_early_stop_patience:
+                        stopped_early = True
+                        break
+
+            ctx["ode_optimization_info"] = {
+                "enabled": True,
+                "actual_steps": int(actual_steps),
+                "cache": {
+                    "enabled": bool(ode_cache_enable),
+                    "interval": int(ode_cache_interval),
+                    "start_step": int(ode_cache_start_step),
+                    "calls": int(ode_runtime["calls"]),
+                    "refreshes": int(ode_runtime["refreshes"]),
+                    "hits": int(ode_runtime["hits"]),
+                },
+                "early_stop": {
+                    "enabled": bool(ode_early_stop_enable),
+                    "threshold": float(ode_early_stop_threshold),
+                    "min_steps": int(ode_early_stop_min_steps),
+                    "patience": int(ode_early_stop_patience),
+                    "metric": ode_early_stop_metric,
+                    "stopped": bool(stopped_early),
+                },
+            }
+        else:
+            # Preserve the baseline implementation and its exact trajectory
+            # shape when experimental ODE options are disabled.
+            action_trajectory = odeint(
+                step_with_kvcache,
+                ctx["noisy_action"],
+                ctx["times"][1:],
+                method="euler",
+            )
 
         ##############################################################################
         # ===== 组装完整 noisy_action_trajectory =====
@@ -2323,11 +2603,12 @@ class Qwen2_5_VLMoEForAction(
             attention_maps = attention_maps[:, :, image_mask_indices]
 
         #################################################################################
-        print("img_mask shape:", ctx["img_mask"].shape)
-        print("image token count:", ctx["img_mask"].sum(dim=1))
-        print("image_grid_thw:", ctx["image_grid_thw"])
-        print("image_grid_thw shape:", ctx["image_grid_thw"].shape)
-        print("attention_maps shape:", attention_maps.shape)
+        if output_attentions:
+            print("img_mask shape:", ctx["img_mask"].shape)
+            print("image token count:", ctx["img_mask"].sum(dim=1))
+            print("image_grid_thw:", ctx["image_grid_thw"])
+            print("image_grid_thw shape:", ctx["image_grid_thw"].shape)
+            print("attention_maps shape:", attention_maps.shape)
 
         '''
         if (
@@ -2367,7 +2648,7 @@ class Qwen2_5_VLMoEForAction(
             else:
                 print(f"  ❌ UNEXPECTED TYPE: {img}")
                 
-        if DEBUG_SAVE_ATTENTION and images_for_attn:
+        if DEBUG_SAVE_ATTENTION and images_for_attn and attention_maps is not None:
             save_attention_heatmap(
                 attention_maps=attention_maps,
                 images=images_for_attn,
@@ -2379,6 +2660,7 @@ class Qwen2_5_VLMoEForAction(
                         f"{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.png"
                     )
                 ),
+                token_counts=ctx.get("image_token_counts"),
                 step_idx=1,
                 layer_indices=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,-1],
                 spatial_merge_size=2,
@@ -2492,6 +2774,8 @@ class Qwen2_5_VLMoEForAction(
             ctx.get("dof_mask"),
         )
         output = {"predict_action": predict_action}
+        if "ode_optimization_info" in ctx:
+            output["ode_optimization_info"] = ctx["ode_optimization_info"]
         if ctx["action_chunk"] is not None:
             output["gt_action"] = unnormalize_data_with_virtual_tail(
                 self.action_preprocessor.normalizer_action,

@@ -158,6 +158,29 @@ _INFERENCE_MODEL_KEYS = (
     "attn_deterministic",
     "flow_loss_weight",
     "use_ema",
+    # Optional inference experiments.  They default to disabled and are
+    # forwarded so the model can select the corresponding code path without
+    # changing the checkpoint weights.
+    "vispruner_enable",
+    "vispruner_score_layers",
+    "vispruner_score_layer",
+    "vispruner_score_reduce",
+    "vispruner_keep_num",
+    "vispruner_important_ratio",
+    "vispruner_seed",
+    "predictor_enable",
+    "predictor_checkpoint_path",
+    "predictor_early_layer",
+    "predictor_keep_num",
+    "ode_optimization_enable",
+    "ode_cache_enable",
+    "ode_cache_interval",
+    "ode_cache_start_step",
+    "ode_early_stop_enable",
+    "ode_early_stop_threshold",
+    "ode_early_stop_min_steps",
+    "ode_early_stop_metric",
+    "ode_early_stop_patience",
 )
 
 

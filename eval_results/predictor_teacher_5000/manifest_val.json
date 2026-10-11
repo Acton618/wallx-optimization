@@ -1,0 +1,18 @@
+{
+  "meta": {
+    "feature_source": "early_hidden",
+    "early_layer": 16,
+    "score_layer": 31,
+    "score_reduce": "attn_max",
+    "repo_id": "libero",
+    "split": "val",
+    "num_samples_requested": 5000,
+    "num_records": 930,
+    "episode_count": 9,
+    "split_seed": 42
+  },
+  "shards": [
+    "eval_results/predictor_teacher_5000/teacher_val_00000.pt",
+    "eval_results/predictor_teacher_5000/teacher_val_00001.pt"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "overall": {
+    "attempted": 1,
+    "successes": 1,
+    "success_rate": 1.0,
+    "failed": 0
+  },
+  "per_task": {
+    "libero_spatial_t0": {
+      "attempted": 1,
+      "successes": 1,
+      "steps": [
+        168
+      ],
+      "success_rate": 1.0,
+      "avg_steps": 168.0
+    }
+  }
+}

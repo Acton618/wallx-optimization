@@ -1,0 +1,5 @@
+{"ts": "2026-10-05T15:49:22", "event": "session_start", "pending": 1, "skipped_completed": 0, "batch_sync_mode": true, "num_frames": 1, "batch_size": 1}
+{"ts": "2026-10-05T15:49:22", "event": "claimed", "ep_id": ["libero_spatial", 0, 0], "frame": 0}
+{"ts": "2026-10-05T15:50:30", "event": "completed", "ep_id": ["libero_spatial", 0, 0], "success": false, "steps": 220, "elapsed_sec": 67.939, "task_desc": "pick up the black bowl between the plate and the ramekin and place it on the plate"}
+{"ts": "2026-10-05T15:50:30", "event": "frame_done", "frame": 0, "size": 1}
+{"ts": "2026-10-05T15:50:30", "event": "session_end", "report_path": "/root/wall-x/wall-x-dachuang-v1/eval_results/stage3_vispruner_keep20_20261005_154819/json/report.json", "overall_success_rate": 0.0}

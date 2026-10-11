@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "feature_source": "early_hidden",
+    "early_layer": 16,
+    "score_layer": 31,
+    "score_reduce": "attn_max",
+    "repo_id": "libero",
+    "split": "all",
+    "num_samples_requested": 5000,
+    "num_records": 10000
+  },
+  "shards": [
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00000.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00001.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00002.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00003.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00004.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00005.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00006.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00007.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00008.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00009.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00010.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00011.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00012.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00013.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00014.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00015.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00016.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00017.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00018.pt",
+    "/root/wall-x/wall-x-dachuang-v1/eval_results/predictor_teacher_5000_all/teacher_all_00019.pt"
+  ]
+}
